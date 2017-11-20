@@ -355,7 +355,7 @@ namespace Shaman.Dokan
             searchPattern = searchPattern.Replace('<', '*');
         }
 
-        protected class FsNode<T>
+        public class FsNode<T>
         {
             public object Tag { get; set; }
             public T Info { get; set; }
