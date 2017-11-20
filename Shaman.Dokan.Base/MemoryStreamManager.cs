@@ -66,6 +66,7 @@ namespace Shaman.Dokan
                                 isdisposed = true;
                                 this.ms.Dispose();
                                 Console.WriteLine("Disposed.");
+                                GC.Collect();
                             }
                         }
                     }, null, Configuration_KeepFileInMemoryTimeMs, Timeout.Infinite);
