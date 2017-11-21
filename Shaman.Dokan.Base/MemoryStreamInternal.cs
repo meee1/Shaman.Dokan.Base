@@ -65,6 +65,7 @@ namespace Shaman.Dokan
         protected override void Dispose(bool disposing)
         {
             data = null;
+            GC.Collect();
         }
     }
 }

@@ -57,16 +57,15 @@ namespace Shaman.Dokan
                     var tok = this.usageToken; 
                     Timer timer = null;
                     timer = new System.Threading.Timer(dummy =>
-                    {
-                        timer.Dispose();
+                    {                       
                         lock (this)
                         {
-                            if (tok == this.usageToken)
+                            if (tok == this.usageToken && this.completed)
                             {
+                                timer.Dispose();
                                 isdisposed = true;
                                 this.ms.Dispose();
-                                Console.WriteLine("Disposed.");
-                                GC.Collect();
+                                Console.WriteLine("Disposed.");                            
                             }
                         }
                     }, null, Configuration_KeepFileInMemoryTimeMs, Timeout.Infinite);
