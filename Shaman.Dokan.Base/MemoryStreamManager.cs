@@ -30,9 +30,12 @@ namespace Shaman.Dokan
             var waitTime = 8;
             while (ms.Length < position + count && !completed)
             {
+                //Console.WriteLine("Read Wait got {0} start {1} count {2} wait {3}", ms.length,position,count, waitTime);
                 Interlocked.MemoryBarrier();
                 Thread.Sleep(waitTime);
                 waitTime *= 2;
+                if (waitTime > 500)
+                    waitTime = 500;
                 if (exception != null) throw exception;
             }
 
