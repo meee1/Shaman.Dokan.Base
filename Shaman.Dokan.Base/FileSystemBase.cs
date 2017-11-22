@@ -357,6 +357,7 @@ namespace Shaman.Dokan
 
         public class FsNode<T>
         {
+            object _locker = new object();
             public object Tag { get; set; }
             public T Info { get; set; }
             private List<FsNode<T>> _children;
@@ -364,13 +365,16 @@ namespace Shaman.Dokan
             {
                 get
                 {
-                    if (_children != null) return _children;
-                    if (GetChildrenDelegate != null)
+                    lock (_locker)
                     {
-                        _children = GetChildrenDelegate();
-                        return _children;
+                        if (_children != null) return _children;
+                        if (GetChildrenDelegate != null)
+                        {
+                            _children = GetChildrenDelegate();
+                            return _children;
+                        }
+                        return null;
                     }
-                    return null;
                 }
                 set
                 {
