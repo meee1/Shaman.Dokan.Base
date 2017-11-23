@@ -26,7 +26,7 @@ namespace Shaman.Dokan
             };
         }
 
-        private Dictionary<TKey, MemoryStreamManager> streams = new Dictionary<TKey, MemoryStreamManager>();
+        public Dictionary<TKey, MemoryStreamManager> streams = new Dictionary<TKey, MemoryStreamManager>();
         public Stream OpenStream(TKey item, long? size, bool onlyIfAlreadyAvailable = false)
         {
             lock (streams)

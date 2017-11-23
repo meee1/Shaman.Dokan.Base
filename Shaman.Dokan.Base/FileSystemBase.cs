@@ -357,6 +357,7 @@ namespace Shaman.Dokan
 
         public class FsNode<T>
         {
+            private static int _id = 0;
             object _locker = new object();
             public object Tag { get; set; }
             public T Info { get; set; }
@@ -370,7 +371,12 @@ namespace Shaman.Dokan
                         if (_children != null) return _children;
                         if (GetChildrenDelegate != null)
                         {
+                            var start = DateTime.Now;
+                            Interlocked.Increment(ref _id);
                             _children = GetChildrenDelegate();
+                            Interlocked.Decrement(ref _id);
+                            var end = DateTime.Now;
+                            Console.WriteLine("GetChildrenDelegate " + _id + " " + (end - start).TotalMilliseconds);
                             return _children;
                         }
                         return null;
