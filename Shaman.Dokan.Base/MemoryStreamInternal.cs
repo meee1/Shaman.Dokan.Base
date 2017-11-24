@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.PerformanceData;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -7,11 +8,18 @@ using System.Threading.Tasks;
 
 namespace Shaman.Dokan
 {
-    class MemoryStreamInternal : Stream
+    public class MemoryStreamInternal : Stream
     {
-        public MemoryStreamInternal(int length)
+        public static List<MemoryStreamInternal> instances = new List<MemoryStreamInternal>();
+
+        public MemoryStreamInternal(int length, string filename)
         {
+            lock (instances)
+            {
+                instances.Add(this);
+            }
             data = new byte[length];
+            this.Filename = filename;
         }
         public override bool CanRead => false;
 
@@ -45,6 +53,8 @@ namespace Shaman.Dokan
         public volatile int length;
         public volatile byte[] data;
 
+        public string Filename { get; private set; }
+
         public override void Write(byte[] buffer, int offset, int count)
         {
             lock (this)
@@ -65,6 +75,10 @@ namespace Shaman.Dokan
         protected override void Dispose(bool disposing)
         {
             data = null;
+            lock (instances)
+            {
+                instances.Remove(this);
+            }
             GC.Collect();
         }
     }

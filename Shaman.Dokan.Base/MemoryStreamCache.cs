@@ -27,7 +27,7 @@ namespace Shaman.Dokan
         }
 
         public Dictionary<TKey, MemoryStreamManager> streams = new Dictionary<TKey, MemoryStreamManager>();
-        public Stream OpenStream(TKey item, long? size, bool onlyIfAlreadyAvailable = false)
+        public Stream OpenStream(TKey item, long? size, bool onlyIfAlreadyAvailable = false, string filename = "")
         {
             lock (streams)
             {
@@ -45,7 +45,7 @@ namespace Shaman.Dokan
 
                 if (onlyIfAlreadyAvailable) return null;
 
-                ms = new MemoryStreamManager(stream => load(item, stream), size);
+                ms = new MemoryStreamManager(stream => load(item, stream), size, filename);
                 streams[item] = ms;
                 return ms.CreateStream();
 

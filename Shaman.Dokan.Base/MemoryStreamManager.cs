@@ -9,13 +9,14 @@ namespace Shaman.Dokan
     public class MemoryStreamManager
     {
         private Action<Stream> write;
-        private MemoryStreamInternal ms;
-
-        private volatile bool completed;
-        public MemoryStreamManager(Action<Stream> write, long? length)
+        public MemoryStreamInternal ms;
+        public volatile bool completed;
+        public DateTime Lastread { get; set; } = DateTime.MinValue;
+        public MemoryStreamManager(Action<Stream> write, long? length, string filename)
         {
             this.write = write;
             this.Length = length;
+            this.Filename = filename;
         }
 
         public Stream CreateStream()
@@ -23,6 +24,8 @@ namespace Shaman.Dokan
             return new ConsumerStream(this);
         }
         public long? Length;
+
+        public string Filename { get; private set; }
 
         internal int Read(long position, byte[] buffer, int offset, int count)
         {
@@ -50,25 +53,27 @@ namespace Shaman.Dokan
 
         }
         private int usageToken;
-        internal void DecrementUsage()
+        public void DecrementUsage()
         {
             lock (this)
             {
                 users--;
-                if (users == 0)
+                if (users <= 0)
                 {
                     var tok = this.usageToken; 
                     Timer timer = null;
                     timer = new System.Threading.Timer(dummy =>
-                    {                       
+                    {
+                        timer.Dispose();
                         lock (this)
                         {
-                            if (tok == this.usageToken && this.completed)
+                            if (tok == this.usageToken )
                             {
-                                timer.Dispose();
+                                while (!this.completed)
+                                    Thread.Sleep(100);
                                 isdisposed = true;
                                 this.ms.Dispose();
-                                Console.WriteLine("Disposed.");                            
+                                Console.WriteLine("Disposed.");
                             }
                         }
                     }, null, Configuration_KeepFileInMemoryTimeMs, Timeout.Infinite);
@@ -84,7 +89,7 @@ namespace Shaman.Dokan
                 users++;
                 if (ms == null)
                 {
-                    ms = new MemoryStreamInternal((int)Length.GetValueOrDefault(32 * 1024));
+                    ms = new MemoryStreamInternal((int)Length.GetValueOrDefault(32 * 1024), Filename);
                     Task.Run(() =>
                     {
                         try
@@ -115,12 +120,13 @@ namespace Shaman.Dokan
         public bool IsDisposed => isdisposed;
     }
 
-    internal class ConsumerStream : Stream
+    public class ConsumerStream : Stream
     {
-        private MemoryStreamManager memoryStreamManager;
+        public MemoryStreamManager memoryStreamManager;
         private long position;
         static private int lastId;
         private int id;
+        
         public ConsumerStream(MemoryStreamManager memoryStreamManager)
         {
             this.memoryStreamManager = memoryStreamManager;
@@ -141,6 +147,7 @@ namespace Shaman.Dokan
         {
             get => position; set
             {
+                memoryStreamManager.Lastread = DateTime.Now;
                 if (position < 0) throw new ArgumentException();
                 if (memoryStreamManager.Length != null && position > memoryStreamManager.Length) throw new ArgumentException();
                 position = value;
@@ -154,6 +161,7 @@ namespace Shaman.Dokan
 
         public override int Read(byte[] buffer, int offset, int count)
         {
+            memoryStreamManager.Lastread = DateTime.Now;
             if (released != 0) return 0;
             var r = memoryStreamManager.Read(position, buffer, offset, count);
             position += r;
@@ -162,6 +170,7 @@ namespace Shaman.Dokan
 
         public override long Seek(long offset, SeekOrigin origin)
         {
+            memoryStreamManager.Lastread = DateTime.Now;
             if (origin == SeekOrigin.Begin) Position = offset;
             else if (origin == SeekOrigin.Current) Position += offset;
             else if (origin == SeekOrigin.End) Position = Length + offset;
@@ -185,7 +194,7 @@ namespace Shaman.Dokan
         {
             if (Interlocked.Increment(ref released) == 1)
             {
-                //Console.WriteLine("Close: " + id);
+                Console.WriteLine("ConsumerStream Close: " + id + " " + memoryStreamManager.Filename);
                 memoryStreamManager.DecrementUsage();
             }
         }
