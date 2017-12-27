@@ -361,8 +361,6 @@ namespace Shaman.Dokan
             object _locker = new object();
             public object Tag { get; set; }
             public T Info { get; set; }
-            private DateTime _childrenDateTime = DateTime.Now;
-            public TimeSpan ChildrenAge { get { return (DateTime.Now - _childrenDateTime); }}
             private List<FsNode<T>> _children;
             public List<FsNode<T>> Children
             {
@@ -387,7 +385,6 @@ namespace Shaman.Dokan
                 set
                 {
                     _children = value;
-                    _childrenDateTime = DateTime.Now;
                 }
             }
             public Func<List<FsNode<T>>> GetChildrenDelegate { get; set; }
