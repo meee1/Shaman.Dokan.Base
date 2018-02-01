@@ -371,12 +371,12 @@ namespace Shaman.Dokan
                         if (_children != null) return _children;
                         if (GetChildrenDelegate != null)
                         {
-                            var start = DateTime.Now;
+                            LastUpdate = DateTime.Now;
                             Interlocked.Increment(ref _id);
                             _children = GetChildrenDelegate();
                             Interlocked.Decrement(ref _id);
                             var end = DateTime.Now;
-                            Console.WriteLine("GetChildrenDelegate " + _id + " " + (end - start).TotalMilliseconds);
+                            Console.WriteLine("GetChildrenDelegate " + _id + " " + (end - LastUpdate).TotalMilliseconds);
                             return _children;
                         }
                         return null;
@@ -390,6 +390,7 @@ namespace Shaman.Dokan
             public Func<List<FsNode<T>>> GetChildrenDelegate { get; set; }
             public string Name { get; set; }
             public string FullName { get; set; }
+            public DateTime LastUpdate { get; private set; }
 
             public override string ToString()
             {
