@@ -376,7 +376,7 @@ namespace Shaman.Dokan
                             _children = GetChildrenDelegate();
                             Interlocked.Decrement(ref _id);
                             var end = DateTime.Now;
-                            Console.WriteLine("GetChildrenDelegate " + _id + " " + (end - LastUpdate).TotalMilliseconds);
+                            Console.WriteLine("GetChildrenDelegate " + _id + " " + FullName + " " + (end - LastUpdate).TotalMilliseconds);
                             return _children;
                         }
                         return null;
