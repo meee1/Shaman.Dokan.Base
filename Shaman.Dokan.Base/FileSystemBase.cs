@@ -35,6 +35,8 @@ namespace Shaman.Dokan
         public abstract NtStatus DeleteFile(string fileName, DokanFileInfo info);
         public abstract NtStatus GetFileInformation(string fileName, out FileInformation fileInfo, DokanFileInfo info);
         public abstract NtStatus GetVolumeInformation(out string volumeLabel, out FileSystemFeatures features, out string fileSystemName, DokanFileInfo info);
+        public abstract NtStatus GetVolumeInformation(out string volumeLabel, out FileSystemFeatures features,
+            out string fileSystemName, out uint maximumComponentLength, DokanFileInfo info);
         public abstract NtStatus MoveFile(string oldName, string newName, bool replace, DokanFileInfo info);
         public abstract NtStatus SetEndOfFile(string fileName, long length, DokanFileInfo info);
         public abstract NtStatus SetFileAttributes(string fileName, FileAttributes attributes, DokanFileInfo info);
@@ -512,8 +514,6 @@ namespace Shaman.Dokan
             }
             throw new TimeoutException();
         }
-
-
 
         [Configuration]
         private static string Configuration_DokanFsRoot = @"C:\DokanFs";

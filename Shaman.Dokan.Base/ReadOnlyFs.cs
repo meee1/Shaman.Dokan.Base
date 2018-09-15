@@ -63,7 +63,12 @@ namespace Shaman.Dokan
             return NtStatus.DiskFull;
         }
 
-
+        public override NtStatus GetVolumeInformation(out string volumeLabel, out FileSystemFeatures features,
+            out string fileSystemName, out uint maximumComponentLength, DokanFileInfo info)
+        {
+            maximumComponentLength = 255;
+            return GetVolumeInformation(out volumeLabel, out features, out fileSystemName, info);
+        }
 
 
         public override void Cleanup(string fileName, DokanFileInfo info)
