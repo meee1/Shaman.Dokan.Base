@@ -7,71 +7,71 @@ namespace Shaman.Dokan
 {
     public abstract class ReadOnlyFs : FileSystemBase
     {
-        public override NtStatus WriteFile(string fileName, byte[] buffer, out int bytesWritten, long offset, DokanFileInfo info)
+        public override NtStatus WriteFile(string fileName, byte[] buffer, out int bytesWritten, long offset, IDokanFileInfo info)
         {
             bytesWritten = 0;
             return NtStatus.DiskFull;
         }
 
-        public override NtStatus SetAllocationSize(string fileName, long length, DokanFileInfo info)
+        public override NtStatus SetAllocationSize(string fileName, long length, IDokanFileInfo info)
         {
             return NtStatus.DiskFull;
         }
 
-        public override NtStatus SetEndOfFile(string fileName, long length, DokanFileInfo info)
+        public override NtStatus SetEndOfFile(string fileName, long length, IDokanFileInfo info)
         {
             return NtStatus.DiskFull;
         }
 
-        public override NtStatus SetFileAttributes(string fileName, FileAttributes attributes, DokanFileInfo info)
+        public override NtStatus SetFileAttributes(string fileName, FileAttributes attributes, IDokanFileInfo info)
         {
             return NtStatus.DiskFull;
         }
 
-        public override NtStatus SetFileSecurity(string fileName, FileSystemSecurity security, AccessControlSections sections, DokanFileInfo info)
+        public override NtStatus SetFileSecurity(string fileName, FileSystemSecurity security, AccessControlSections sections, IDokanFileInfo info)
         {
             return NtStatus.DiskFull;
         }
 
-        public override NtStatus SetFileTime(string fileName, DateTime? creationTime, DateTime? lastAccessTime, DateTime? lastWriteTime, DokanFileInfo info)
+        public override NtStatus SetFileTime(string fileName, DateTime? creationTime, DateTime? lastAccessTime, DateTime? lastWriteTime, IDokanFileInfo info)
         {
             return NtStatus.DiskFull;
         }
 
-        public override NtStatus MoveFile(string oldName, string newName, bool replace, DokanFileInfo info)
+        public override NtStatus MoveFile(string oldName, string newName, bool replace, IDokanFileInfo info)
         {
             return NtStatus.DiskFull;
         }
 
-        public override NtStatus DeleteDirectory(string fileName, DokanFileInfo info)
+        public override NtStatus DeleteDirectory(string fileName, IDokanFileInfo info)
         {
             return NtStatus.DiskFull;
         }
 
-        public override NtStatus DeleteFile(string fileName, DokanFileInfo info)
+        public override NtStatus DeleteFile(string fileName, IDokanFileInfo info)
         {
             return NtStatus.DiskFull;
         }
 
-        public override NtStatus LockFile(string fileName, long offset, long length, DokanFileInfo info)
+        public override NtStatus LockFile(string fileName, long offset, long length, IDokanFileInfo info)
         {
             return NtStatus.DiskFull;
         }
 
-        public override NtStatus UnlockFile(string fileName, long offset, long length, DokanFileInfo info)
+        public override NtStatus UnlockFile(string fileName, long offset, long length, IDokanFileInfo info)
         {
             return NtStatus.DiskFull;
         }
 
         public override NtStatus GetVolumeInformation(out string volumeLabel, out FileSystemFeatures features,
-            out string fileSystemName, out uint maximumComponentLength, DokanFileInfo info)
+            out string fileSystemName, out uint maximumComponentLength, IDokanFileInfo info)
         {
             maximumComponentLength = 255;
             return GetVolumeInformation(out volumeLabel, out features, out fileSystemName, info);
         }
 
 
-        public override void Cleanup(string fileName, DokanFileInfo info)
+        public override void Cleanup(string fileName, IDokanFileInfo info)
         {
 #if TRACE
             if (info.Context != null)

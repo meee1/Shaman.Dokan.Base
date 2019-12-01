@@ -12,7 +12,7 @@ namespace Shaman.Dokan
     public abstract class FileSystemBasedFs : FileSystemBase
     {
 
-        public override NtStatus MoveFile(string oldName, string newName, bool replace, DokanFileInfo info)
+        public override NtStatus MoveFile(string oldName, string newName, bool replace, IDokanFileInfo info)
         {
             OnFileRead(oldName);
             OnFileChanged(oldName);
@@ -63,7 +63,7 @@ namespace Shaman.Dokan
         }
 
 
-        public override NtStatus DeleteFile(string fileName, DokanFileInfo info)
+        public override NtStatus DeleteFile(string fileName, IDokanFileInfo info)
         {
             OnFileChanged(fileName);
             var filePath = GetPath(fileName);
@@ -81,7 +81,7 @@ namespace Shaman.Dokan
             // we just check here if we could delete the file - the true deletion is in Cleanup
         }
 
-        public override NtStatus SetFileAttributes(string fileName, FileAttributes attributes, DokanFileInfo info)
+        public override NtStatus SetFileAttributes(string fileName, FileAttributes attributes, IDokanFileInfo info)
         {
             OnFileChanged(fileName);
             try

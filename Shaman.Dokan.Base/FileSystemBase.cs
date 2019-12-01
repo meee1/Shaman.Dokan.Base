@@ -29,34 +29,34 @@ namespace Shaman.Dokan
                                                    FileAccess.GenericWrite;
 
 
-        public abstract void Cleanup(string fileName, DokanFileInfo info);
-        public abstract NtStatus CreateFile(string fileName, DokanNet.FileAccess access, FileShare share, FileMode mode, FileOptions options, FileAttributes attributes, DokanFileInfo info);
-        public abstract NtStatus DeleteDirectory(string fileName, DokanFileInfo info);
-        public abstract NtStatus DeleteFile(string fileName, DokanFileInfo info);
-        public abstract NtStatus GetFileInformation(string fileName, out FileInformation fileInfo, DokanFileInfo info);
-        public abstract NtStatus GetVolumeInformation(out string volumeLabel, out FileSystemFeatures features, out string fileSystemName, DokanFileInfo info);
+        public abstract void Cleanup(string fileName, IDokanFileInfo info);
+        public abstract NtStatus CreateFile(string fileName, FileAccess access, FileShare share, FileMode mode, FileOptions options, FileAttributes attributes, IDokanFileInfo info);
+        public abstract NtStatus DeleteDirectory(string fileName, IDokanFileInfo info);
+        public abstract NtStatus DeleteFile(string fileName, IDokanFileInfo info);
+        public abstract NtStatus GetFileInformation(string fileName, out FileInformation fileInfo, IDokanFileInfo info);
+        public abstract NtStatus GetVolumeInformation(out string volumeLabel, out FileSystemFeatures features, out string fileSystemName, IDokanFileInfo info);
         public abstract NtStatus GetVolumeInformation(out string volumeLabel, out FileSystemFeatures features,
-            out string fileSystemName, out uint maximumComponentLength, DokanFileInfo info);
-        public abstract NtStatus MoveFile(string oldName, string newName, bool replace, DokanFileInfo info);
-        public abstract NtStatus SetEndOfFile(string fileName, long length, DokanFileInfo info);
-        public abstract NtStatus SetFileAttributes(string fileName, FileAttributes attributes, DokanFileInfo info);
-        public abstract NtStatus SetFileSecurity(string fileName, FileSystemSecurity security, AccessControlSections sections, DokanFileInfo info);
-        public abstract NtStatus SetFileTime(string fileName, DateTime? creationTime, DateTime? lastAccessTime, DateTime? lastWriteTime, DokanFileInfo info);
-        public abstract NtStatus WriteFile(string fileName, byte[] buffer, out int bytesWritten, long offset, DokanFileInfo info);
+            out string fileSystemName, out uint maximumComponentLength, IDokanFileInfo info);
+        public abstract NtStatus MoveFile(string oldName, string newName, bool replace, IDokanFileInfo info);
+        public abstract NtStatus SetEndOfFile(string fileName, long length, IDokanFileInfo info);
+        public abstract NtStatus SetFileAttributes(string fileName, FileAttributes attributes, IDokanFileInfo info);
+        public abstract NtStatus SetFileSecurity(string fileName, FileSystemSecurity security, AccessControlSections sections, IDokanFileInfo info);
+        public abstract NtStatus SetFileTime(string fileName, DateTime? creationTime, DateTime? lastAccessTime, DateTime? lastWriteTime, IDokanFileInfo info);
+        public abstract NtStatus WriteFile(string fileName, byte[] buffer, out int bytesWritten, long offset, IDokanFileInfo info);
 
 
 
-        public virtual NtStatus Mounted(DokanFileInfo info)
+        public virtual NtStatus Mounted(IDokanFileInfo info)
         {
             return Trace(nameof(Mounted), null, info, DokanResult.Success);
         }
 
-        public virtual NtStatus Unmounted(DokanFileInfo info)
+        public virtual NtStatus Unmounted(IDokanFileInfo info)
         {
             return Trace(nameof(Unmounted), null, info, DokanResult.Success);
         }
 
-        public virtual NtStatus FlushFileBuffers(string fileName, DokanFileInfo info)
+        public virtual NtStatus FlushFileBuffers(string fileName, IDokanFileInfo info)
         {
             try
             {
@@ -70,7 +70,7 @@ namespace Shaman.Dokan
         }
 
 
-        public virtual void CloseFile(string fileName, DokanFileInfo info)
+        public virtual void CloseFile(string fileName, IDokanFileInfo info)
         {
 #if TRACE
             if (info.Context != null)
@@ -84,7 +84,7 @@ namespace Shaman.Dokan
         }
 
 
-        public virtual NtStatus LockFile(string fileName, long offset, long length, DokanFileInfo info)
+        public virtual NtStatus LockFile(string fileName, long offset, long length, IDokanFileInfo info)
         {
             try
             {
@@ -99,7 +99,7 @@ namespace Shaman.Dokan
             }
         }
 
-        public virtual NtStatus UnlockFile(string fileName, long offset, long length, DokanFileInfo info)
+        public virtual NtStatus UnlockFile(string fileName, long offset, long length, IDokanFileInfo info)
         {
             try
             {
@@ -116,7 +116,7 @@ namespace Shaman.Dokan
 
 
         public NtStatus FindStreams(string fileName, IntPtr enumContext, out string streamName, out long streamSize,
-            DokanFileInfo info)
+            IDokanFileInfo info)
         {
             streamName = string.Empty;
             streamSize = 0;
@@ -124,7 +124,7 @@ namespace Shaman.Dokan
                 "out " + streamName, "out " + streamSize.ToString());
         }
 
-        public virtual NtStatus FindStreams(string fileName, out IList<FileInformation> streams, DokanFileInfo info)
+        public virtual NtStatus FindStreams(string fileName, out IList<FileInformation> streams, IDokanFileInfo info)
         {
             streams = new FileInformation[0];
             return Trace(nameof(FindStreams), fileName, info, DokanResult.NotImplemented);
@@ -168,7 +168,7 @@ namespace Shaman.Dokan
         {
         }
 
-        public virtual NtStatus SetAllocationSize(string fileName, long length, DokanFileInfo info)
+        public virtual NtStatus SetAllocationSize(string fileName, long length, IDokanFileInfo info)
         {
             OnFileChanged(fileName);
             try
@@ -184,7 +184,7 @@ namespace Shaman.Dokan
             }
         }
 
-        public NtStatus FindFiles(string fileName, out IList<FileInformation> files, DokanFileInfo info)
+        public NtStatus FindFiles(string fileName, out IList<FileInformation> files, IDokanFileInfo info)
         {
             // This function is not called because FindFilesWithPattern is implemented
             // Return DokanResult.NotImplemented in FindFilesWithPattern to make FindFiles called
@@ -195,7 +195,7 @@ namespace Shaman.Dokan
 
 
         public NtStatus FindFilesWithPattern(string fileName, string searchPattern, out IList<FileInformation> files,
-            DokanFileInfo info)
+            IDokanFileInfo info)
         {
             files = FindFilesHelper(fileName, searchPattern);
 
@@ -205,7 +205,7 @@ namespace Shaman.Dokan
         protected abstract IList<FileInformation> FindFilesHelper(string fileName, string searchPattern);
 
 
-        protected virtual NtStatus Trace(string method, string fileName, DokanFileInfo info, NtStatus result,
+        protected virtual NtStatus Trace(string method, string fileName, IDokanFileInfo info, NtStatus result,
             params object[] parameters)
         {
 #if TRACE
@@ -219,7 +219,7 @@ namespace Shaman.Dokan
             return result;
         }
 
-        protected virtual NtStatus Trace(string method, string fileName, DokanFileInfo info,
+        protected virtual NtStatus Trace(string method, string fileName, IDokanFileInfo info,
             DokanNet.FileAccess access, FileShare share, FileMode mode, FileOptions options, FileAttributes attributes,
             NtStatus result)
         {
@@ -233,7 +233,7 @@ namespace Shaman.Dokan
         }
 
 
-        public virtual NtStatus GetDiskFreeSpace(out long free, out long total, out long used, DokanFileInfo info)
+        public virtual NtStatus GetDiskFreeSpace(out long free, out long total, out long used, IDokanFileInfo info)
         {
             free = 0;
             total = 0;
@@ -304,13 +304,13 @@ namespace Shaman.Dokan
 
         protected char Letter;
 
-        public virtual NtStatus GetFileSecurity(string fileName, out FileSystemSecurity security, AccessControlSections sections, DokanFileInfo info)
+        public virtual NtStatus GetFileSecurity(string fileName, out FileSystemSecurity security, AccessControlSections sections, IDokanFileInfo info)
         {
             security = null;
             return NtStatus.NotImplemented;
         }
 
-        public virtual NtStatus ReadFile(string fileName, byte[] buffer, out int bytesRead, long offset, DokanFileInfo info)
+        public virtual NtStatus ReadFile(string fileName, byte[] buffer, out int bytesRead, long offset, IDokanFileInfo info)
         {
             var stream = (Stream)info.Context;
             lock (stream)
